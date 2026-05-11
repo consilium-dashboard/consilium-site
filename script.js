@@ -43,12 +43,26 @@ function calculateRiskSentiment() {
 // disponible para la fecha actual.
 // Documentación: https://frankfurter.dev/#/rates
 
-async function fetchRate(base, quote) {
-    const url = `https://api.frankfurter.dev/v2/rate/${base}/${quote}`;
+/**
+ * Recupera el tipo de cambio de un par de divisas o metal.
+ * Si se proporciona la fecha, la API devuelve el valor de cierre de ese día.
+ *
+ * @param {string} base  – moneda base (por ejemplo, 'EUR', 'USD', 'XAU')
+ * @param {string} quote – moneda cotizada (por ejemplo, 'USD', 'JPY')
+ * @param {string|null} date – fecha opcional en formato YYYY-MM-DD
+ * @returns {Promise<number|null>} – el tipo de cambio o null si hay error
+ */
+async function fetchRate(base, quote, date = null) {
+    let url = `https://api.frankfurter.dev/v2/rate/${base}/${quote}`;
+    // Si se especifica fecha, añádela como parámetro de consulta
+    if (date) {
+        url += `?date=${date}`;
+    }
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Error al obtener el tipo de cambio');
         const data = await response.json();
+        // La API devuelve un objeto con "rate"
         return data.rate;
     } catch (error) {
         console.error('Error en fetchRate:', error);
@@ -120,29 +134,25 @@ function getPastDate(daysAgo) {
 
 // Recupera una serie temporal de los últimos "days" días y calcula métricas
 async function fetchTimeSeries(base, quote, days) {
-    const endDate = getPastDate(0);
-    const startDate = getPastDate(days);
-    const url = `https://api.frankfurter.dev/v2/rates?from=${startDate}&to=${endDate}&base=${base}&quotes=${quote}`;
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Error al obtener serie temporal');
-        const data = await response.json();
-        // La respuesta contiene un objeto "rates" cuyas claves son fechas y valores son
-        // objetos de pares { quote: value }
-        const ratesObj = data.rates || {};
-        const values = Object.values(ratesObj).map(dayObj => dayObj[quote]);
-        if (!values.length) return null;
-        const max = Math.max(...values);
-        const min = Math.min(...values);
-        const mean = values.reduce((a, b) => a + b, 0) / values.length;
-        const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-        const volatility = Math.sqrt(variance);
-        const lastRate = values[values.length - 1];
-        return { max, min, mean, volatility, lastRate };
-    } catch (error) {
-        console.error('Error en fetchTimeSeries:', error);
-        return null;
+    const values = [];
+    // Recorremos los últimos "days" días hacia atrás. Si algún día cae en fin de semana
+    // y no hay dato disponible, simplemente no añadimos valor.
+    for (let i = days; i >= 1; i--) {
+        const date = getPastDate(i);
+        const rate = await fetchRate(base, quote, date);
+        if (rate) {
+            values.push(rate);
+        }
     }
+    if (!values.length) return null;
+    const max = Math.max(...values);
+    const min = Math.min(...values);
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
+    const volatility = Math.sqrt(variance);
+    // El último valor (más reciente) se encuentra al final del array
+    const lastRate = values[values.length - 1];
+    return { max, min, mean, volatility, lastRate };
 }
 
 // Carga y actualiza las estadísticas para EUR/USD, USD/JPY y XAU/USD
