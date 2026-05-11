@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONSILIUM – Macro Trading Intelligence</title>
+    <!-- Link to the external stylesheet -->
+    <!-- Ajuste de ruta: la hoja de estilos ahora está en la raíz -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Load Google Fonts: Roboto for body text and Cinzel for the site title -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <!-- Ajuste de ruta: el favicon ahora está en la raíz -->
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <!-- Persistent risk warning bar -->
+    <div id="risk-warning">
+        CONSILIUM es una herramienta de análisis. No garantiza resultados y el mercado puede cambiar de dirección sin aviso. Use siempre gestión de riesgo, Stop Loss e invalidación.
+    </div>
+
+    <!-- Header with site title, subtitle, logo, current date/time and market sentiment -->
+    <header>
+        <div class="header-left">
+            <!-- Ajuste de ruta: la imagen del logotipo ahora está en la raíz -->
+            <img src="logo.png" alt="Logo VLAD" class="header-logo">
+            <div class="header-title">
+                <h1>CONSILIUM</h1>
+                <h2>Macro&nbsp;Trading&nbsp;Intelligence</h2>
+            </div>
+        </div>
+        <div class="datetime">
+            <span id="current-date"></span> <span id="current-time"></span>
+            <div id="market-status" class="status neutral">Estado del mercado: —</div>
+        </div>
+    </header>
+
+    <!-- Summary of the day -->
+    <section id="summary" class="panel">
+        <h3>Resumen&nbsp;rápido&nbsp;del&nbsp;día</h3>
+        <p>
+            El&nbsp;<strong>8 de mayo de 2026</strong> los mercados cerraron con un tono equilibrado y fácil de explicar. El par
+            <strong>EURUSD</strong> concluyó cerca de <strong>1.178</strong>, un ligero avance favorecido por la debilidad del dólar y el
+            optimismo ante buenos resultados empresariales. El cruce <strong>USDJPY</strong> retrocedió hasta la zona de
+            <strong>156.7</strong> cuando el yen se apreció por temor a nuevas intervenciones de Tokio y un repunte de los
+            salarios reales. El <strong>oro (XAUUSD)</strong> repuntó alrededor de
+            4 560&nbsp;USD/onza por compras de oportunidad, mientras que el <strong>petróleo</strong> descendió debido al optimismo
+            sobre un posible acuerdo entre Estados&nbsp;Unidos e Irán. La volatilidad se mantuvo moderada (el VIX rondó los
+            14 puntos) y los rendimientos de los bonos del Tesoro estadounidense continuaron formando una figura de
+            “<em>cup and handle</em>” con un umbral clave en 4.484 %.
+        </p>
+        <p>
+            <strong>¿Qué podría pasar a partir de ahora?</strong> Basados en el comportamiento reciente y datos cuantitativos,
+            se espera que <strong>EURUSD</strong> mantenga una inclinación alcista mientras se sostenga por encima de su media de
+            200 días (≈1.1677). Hay alrededor de un 60 % de probabilidad de continuidad al alza, pero una ruptura bajo
+            1.1760 podría activar una corrección. El <strong>USDJPY</strong> podría seguir retrocediendo si continúan las
+            intervenciones y el yen se fortalece; estimamos una probabilidad cercana al 55 % de nuevos descensos.
+            En el <strong>oro</strong> se proyecta estabilidad o un suave repunte (probabilidad ≈55 %) ante la moderación de tasas,
+            mientras que el <strong>petróleo</strong> podría mantener presión bajista si se materializa un acuerdo geopolítico.
+        </p>
+    </section>
+
+    <!-- Macro overview panel -->
+    <section id="macro-panel" class="panel">
+        <h3>Panel&nbsp;Macro</h3>
+        <div class="cards-grid">
+            <div class="macro-card" id="dxy-card">
+                <h4>Dólar&nbsp;Índice&nbsp;(DXY)</h4>
+                <p class="value" id="dxy-value">—</p>
+                <p class="subtitle">Dirección: <span id="dxy-direction">—</span></p>
+            </div>
+            <div class="macro-card" id="us10y-card">
+                <h4>Bono&nbsp;10Y&nbsp;EE.UU.</h4>
+                <p class="value" id="us10y-value">—</p>
+                <p class="subtitle">Formación: <span id="us10y-pattern">—</span></p>
+            </div>
+            <div class="macro-card" id="us02y-card">
+                <h4>Bono&nbsp;2Y&nbsp;EE.UU.</h4>
+                <p class="value" id="us02y-value">—</p>
+                <p class="subtitle">Rendimiento</p>
+            </div>
+            <div class="macro-card" id="vix-card">
+                <h4>VIX</h4>
+                <p class="value" id="vix-value">—</p>
+                <p class="subtitle">Volatilidad</p>
+            </div>
+            <div class="macro-card" id="wti-card">
+                <h4>WTI/Brent</h4>
+                <p class="value" id="wti-value">—</p>
+                <p class="subtitle">Cambio</p>
+            </div>
+            <div class="macro-card" id="xauusd-card">
+                <h4>Oro&nbsp;(XAUUSD)</h4>
+                <p class="value" id="xauusd-value">—</p>
+                <p class="subtitle">Tendencia</p>
+            </div>
+            <div class="macro-card" id="risk-card">
+                <h4>Apetito&nbsp;de&nbsp;riesgo</h4>
+                <p class="value" id="risk-value">—</p>
+                <p class="subtitle">Sentimiento</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special panels for EURUSD, USDJPY and XAUUSD -->
+    <section id="special-panel" class="panel special">
+        <h3>Panel&nbsp;Especial</h3>
+        <div class="special-grid">
+            <!-- EURUSD special card -->
+            <div class="special-card">
+                <h4>EURUSD</h4>
+                <div class="special-info">
+                    <p><strong>Decisión actual:</strong> Esperar</p>
+                    <p><strong>Precio actual:</strong> 1.17856</p>
+                    <p><strong>Máximo intradía:</strong> 1.1810</p>
+                    <p><strong>Mínimo intradía:</strong> 1.1750</p>
+                    <p><strong>Rango (pips):</strong> 60</p>
+                    <p><strong>Soporte:</strong> 1.1677</p>
+                    <p><strong>Resistencia:</strong> 1.1830</p>
+                    <p><strong>Distancia al máximo:</strong> −25&nbsp;pips</p>
+                    <p><strong>Distancia al mínimo:</strong> 35&nbsp;pips</p>
+                    <p><strong>EMA&nbsp;50&nbsp;M5/M15:</strong> 1.1765</p>
+                    <p><strong>DXY:</strong> 103.15</p>
+                    <p><strong>US10Y:</strong> 4.45&nbsp;%</p>
+                    <p><strong>Evento de alto impacto:</strong> Non‑Farm Payrolls a las 07:30&nbsp;MX</p>
+                    <p><strong>Estrategia viable:</strong> Compra sobre 1.1800 con SL 1.1750</p>
+                </div>
+                <div class="special-chart">
+                    <div class="chart-placeholder">Gráfico</div>
+                </div>
+            </div>
+            <!-- USDJPY special card -->
+            <div class="special-card">
+                <h4>USDJPY</h4>
+                <div class="special-info">
+                    <p><strong>Decisión actual:</strong> Vender</p>
+                    <p><strong>Precio actual:</strong> 156.65</p>
+                    <p><strong>Máximo intradía:</strong> 157.10</p>
+                    <p><strong>Mínimo intradía:</strong> 156.30</p>
+                    <p><strong>Rango (pips):</strong> 80</p>
+                    <p><strong>Soporte:</strong> 155.00</p>
+                    <p><strong>Resistencia:</strong> 157.50</p>
+                    <p><strong>Distancia al máximo:</strong> −45&nbsp;pips</p>
+                    <p><strong>Distancia al mínimo:</strong> 35&nbsp;pips</p>
+                    <p><strong>EMA&nbsp;50&nbsp;M5/M15:</strong> 156.80</p>
+                    <p><strong>DXY:</strong> 103.15</p>
+                    <p><strong>US10Y:</strong> 4.45&nbsp;%</p>
+                    <p><strong>Evento de alto impacto:</strong> Intervención del Banco de Japón / Powell 10:00&nbsp;MX</p>
+                    <p><strong>Estrategia viable:</strong> Venta en repuntes hacia 157.00 con SL 157.60</p>
+                </div>
+                <div class="special-chart">
+                    <div class="chart-placeholder">Gráfico</div>
+                </div>
+            </div>
+            <!-- XAUUSD special card -->
+            <div class="special-card">
+                <h4>XAUUSD</h4>
+                <div class="special-info">
+                    <p><strong>Decisión actual:</strong> Comprar</p>
+                    <p><strong>Precio actual:</strong> 4&nbsp;558</p>
+                    <p><strong>Máximo intradía:</strong> 4&nbsp;578</p>
+                    <p><strong>Mínimo intradía:</strong> 4&nbsp;520</p>
+                    <p><strong>Rango (USD):</strong> 58</p>
+                    <p><strong>Soporte:</strong> 4&nbsp;490</p>
+                    <p><strong>Resistencia:</strong> 4&nbsp;580</p>
+                    <p><strong>Distancia al máximo:</strong> −20&nbsp;USD</p>
+                    <p><strong>Distancia al mínimo:</strong> 38&nbsp;USD</p>
+                    <p><strong>EMA&nbsp;50&nbsp;M5/M15:</strong> 4&nbsp;550</p>
+                    <p><strong>Índice dólar:</strong> 103.15</p>
+                    <p><strong>US10Y:</strong> 4.45&nbsp;%</p>
+                    <p><strong>Evento de alto impacto:</strong> Cambios en tasas de la Fed / IPC Alemania</p>
+                    <p><strong>Estrategia viable:</strong> Compras sobre 4&nbsp;560 con SL 4&nbsp;520</p>
+                </div>
+                <div class="special-chart">
+                    <div class="chart-placeholder">Gráfico</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analysis tools panel: statistics for EUR/USD, USD/JPY and XAU/USD -->
+    <section id="analysis-panel" class="panel">
+        <h3>Herramientas&nbsp;de&nbsp;análisis</h3>
+        <p>Estas estadísticas se actualizan automáticamente usando datos diarios de más de 55 bancos centrales. Ayudan a evaluar la dirección y volatilidad de cada activo en los últimos siete días.</p>
+        <div class="analysis-grid">
+            <!-- EURUSD analysis card -->
+            <div class="analysis-card" id="eurusd-analysis">
+                <h4>EUR/USD&nbsp;–&nbsp;Estadísticas</h4>
+                <p id="eur-max"><strong>Máximo&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="eur-min"><strong>Mínimo&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="eur-avg"><strong>Media&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="eur-vol"><strong>Volatilidad:</strong> —</p>
+                <p id="eur-trend" class="trend">—</p>
+            </div>
+            <!-- USDJPY analysis card -->
+            <div class="analysis-card" id="usdjpy-analysis">
+                <h4>USD/JPY&nbsp;–&nbsp;Estadísticas</h4>
+                <p id="jpy-max"><strong>Máximo&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="jpy-min"><strong>Mínimo&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="jpy-avg"><strong>Media&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="jpy-vol"><strong>Volatilidad:</strong> —</p>
+                <p id="jpy-trend" class="trend">—</p>
+            </div>
+            <!-- XAUUSD analysis card -->
+            <div class="analysis-card" id="xauusd-analysis">
+                <h4>XAU/USD&nbsp;–&nbsp;Estadísticas</h4>
+                <p id="xau-max"><strong>Máximo&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="xau-min"><strong>Mínimo&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="xau-avg"><strong>Media&nbsp;(7&nbsp;días):</strong> —</p>
+                <p id="xau-vol"><strong>Volatilidad:</strong> —</p>
+                <p id="xau-trend" class="trend">—</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- News panel -->
+    <section id="news-panel" class="panel">
+        <h3>Noticias&nbsp;Relevantes</h3>
+        <div class="news-items">
+            <!-- Noticias con banda de color según impacto -->
+            <article class="news-item high-impact">
+                <h4>Acuerdo entre EE.UU. e Irán reduce el precio del petróleo</h4>
+                <p>Los informes sobre un posible acuerdo de paz entre Estados Unidos e Irán provocaron que el petróleo WTI/Brent cayera casi un 8 %;
+                    la reapertura del Estrecho de Ormuz aún podría tardar semanas.</p>
+                <p class="strategy">Estrategia: considerar ventas de WTI/Brent mientras la oferta se normaliza; probabilidad ≈70 %. Fuente: Reuters.</p>
+            </article>
+            <article class="news-item medium-impact">
+                <h4>Récord en índices S&P 500 y Nasdaq</h4>
+                <p>El S&P 500 y el Nasdaq 100 alcanzaron máximos históricos gracias al sólido crecimiento de utilidades de compañías de inteligencia
+                    artificial y a que el 83 % de las empresas superaron las estimaciones.</p>
+                <p class="strategy">Estrategia: tendencia alcista, buscar oportunidades de compra en índices con probabilidad ≈65 %. Fuente: Reuters.</p>
+            </article>
+            <article class="news-item medium-impact">
+                <h4>Bonos estadounidenses forman figura técnica</h4>
+                <p>Los bonos del Tesoro a 10 años dibujan una figura de “cup and handle”; si los rendimientos cierran por encima de 4.484 %, el
+                    objetivo técnico sería alrededor de 4.60 %.</p>
+                <p class="strategy">Estrategia: si las tasas rompen 4.484 %, considerar compras de USD y ventas de EURUSD; probabilidad ≈60 %. Fuente: Reuters.</p>
+            </article>
+            <article class="news-item low-impact">
+                <h4>EURUSD prueba su media móvil de 200 días</h4>
+                <p>El euro se ubica cerca de la media móvil de 200 días (~1.1677); mantenerse por encima abre la puerta a avances hacia 1.1830–1.1919,
+                    pero una ruptura podría desencadenar una corrección.</p>
+                <p class="strategy">Estrategia: entrar largo si se respeta la media, o vender si se pierde; probabilidad ≈55 %. Fuente: Reuters.</p>
+            </article>
+            <article class="news-item low-impact">
+                <h4>Yen recupera terreno ante expectativas de intervención</h4>
+                <p>La tasa USDJPY cayó a 156.65 cuando los operadores apostaron a intervenciones de Tokio y salarios reales en alza;
+                    se espera que el yen se fortalezca modestamente en los próximos meses.</p>
+                <p class="strategy">Estrategia: buscar ventas de USDJPY en niveles cercanos a 157 con probabilidad ≈55 %. Fuente: Trading Economics.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- Economic calendar panel -->
+    <section id="calendar-panel" class="panel">
+        <h3>Calendario&nbsp;Económico</h3>
+        <table id="economic-calendar">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora&nbsp;(MX)</th>
+                    <th>Evento</th>
+                    <th>Monedas&nbsp;impactadas</th>
+                    <th>Descripción</th>
+                    <th>Consenso</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>09&nbsp;May&nbsp;2026</td>
+                    <td>07:30</td>
+                    <td>Non‑Farm&nbsp;Payrolls EE.UU.</td>
+                    <td>USD, EURUSD, USDJPY, Oro</td>
+                    <td>Las nóminas no agrícolas miden el crecimiento del empleo en Estados Unidos; un dato mayor al esperado suele fortalecer al dólar y elevar las tasas, mientras que uno débil puede deprimir el USD y apoyar al oro.</td>
+                    <td>+210&nbsp;k</td>
+                </tr>
+                <tr>
+                    <td>09&nbsp;May&nbsp;2026</td>
+                    <td>10:00</td>
+                    <td>Discurso&nbsp;de Powell</td>
+                    <td>USD, SP500, EURUSD</td>
+                    <td>Los mercados siguen cada palabra del presidente de la Fed; sus mensajes señalan la dirección futura de la política monetaria y pueden provocar movimientos bruscos en divisas e índices.</td>
+                    <td>—</td>
+                </tr>
+                <tr>
+                    <td>10&nbsp;May&nbsp;2026</td>
+                    <td>06:45</td>
+                    <td>IPC&nbsp;Alemania</td>
+                    <td>EURUSD</td>
+                    <td>El índice de precios al consumidor mide la inflación. Una inflación alta puede llevar al BCE a subir tasas, fortaleciendo el euro; una lectura baja suele presionar a la moneda.</td>
+                    <td>3.2&nbsp;%</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="calendar-source">
+            Fuentes: Forex&nbsp;Factory, Investing, Trading&nbsp;Economics, Bureau&nbsp;of&nbsp;Labor&nbsp;Statistics.
+        </p>
+    </section>
+
+    <!-- Influence monitor for X/Twitter -->
+    <section id="influence-panel" class="panel">
+        <h3>Influence&nbsp;Monitor&nbsp;(X/Twitter)</h3>
+        <p>Seguimos a cuentas influyentes (presidentes, bancos centrales, organismos energéticos) para detectar declaraciones que puedan mover el mercado. Cuando aparece un tuit relevante lo clasificamos y sugerimos una posible reacción.</p>
+        <div class="tweet-feed">
+            <div class="tweet pending">
+                <p><strong>@realDonaldTrump:</strong> La Fed debería bajar las tasas, ¡el dólar está demasiado fuerte! <span class="timestamp">hace&nbsp;2&nbsp;h</span></p>
+                <p class="status">Pendiente de confirmación</p>
+                <p class="strategy">Posible estrategia: si se confirmara una postura más dovish, el dólar podría debilitarse. Considerar compras de EURUSD con probabilidad ≈55 %, buscando confirmaciones adicionales.</p>
+            </div>
+            <div class="tweet confirmed">
+                <p><strong>@ecb:</strong> Hemos decidido mantener las tasas sin cambios y continuar monitorizando la inflación. <span class="timestamp">hace&nbsp;4&nbsp;h</span></p>
+                <p class="status">Confirmado por fuente oficial — impacto moderado</p>
+                <p class="strategy">Posible estrategia: la neutralidad del BCE sugiere estabilidad en el EURUSD; mantenerse al margen o buscar rangos estrechos con probabilidad ≈50 %.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alerts panel -->
+    <section id="alerts-panel" class="panel">
+        <h3>Panel&nbsp;de&nbsp;Alertas</h3>
+        <!-- Leyenda de colores -->
+        <p class="alert-legend">Leyenda: <span class="legend info">verde</span> = informativa (oportunidades moderadas),
+            <span class="legend prep">amarillo</span> = preparación (evento cercano),
+            <span class="legend oper">rojo</span> = operativa (acción en curso),
+            <span class="legend block">púrpura</span> = no operar (alta volatilidad o datos inesperados).</p>
+        <div id="alerts-list">
+            <div class="alert info">
+                <h4>Alerta&nbsp;Informativa</h4>
+                <p>La volatilidad del VIX se encuentra por debajo de su promedio de 20 días, lo que sugiere complacencia en los mercados.</p>
+                <p><em>En caso de operar:</em> Se podrían buscar compras en índices como el S&amp;P 500 con probabilidad ≈55 %, pero confirmar con análisis técnico.</p>
+            </div>
+            <div class="alert prep">
+                <h4>Alerta&nbsp;de&nbsp;Preparación</h4>
+                <p>A las 07:30&nbsp;MX se publican las Non‑Farm Payrolls; evitar abrir posiciones 30 minutos antes debido a la volatilidad esperada.</p>
+                <p><em>En caso de operar:</em> Un dato por encima del consenso suele fortalecer al USD (ventas de EURUSD o compras de USDJPY), mientras que un dato débil favorece al euro y al oro; probabilidad ≈60 %.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Strategies panel -->
+    <section id="strategies-panel" class="panel">
+        <h3>Panel&nbsp;de&nbsp;Estrategias&nbsp;Viables</h3>
+        <table class="strategies-table">
+            <thead>
+                <tr>
+                    <th>Par</th>
+                    <th>Tipo</th>
+                    <th>Condición</th>
+                    <th>Entrada</th>
+                    <th>SL</th>
+                    <th>TP</th>
+                    <th>Riesgo</th>
+                    <th>Prob.</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>EURUSD</td>
+                    <td>Comprar</td>
+                    <td>Mantenerse por encima de la media móvil de 200&nbsp;días (≈1.1677) y debilidad del DXY</td>
+                    <td>&gt;1.1800</td>
+                    <td>1.1750</td>
+                    <td>1.1880</td>
+                    <td>1&nbsp;%</td>
+                    <td>≈60&nbsp;%</td>
+                </tr>
+                <tr>
+                    <td>EURUSD</td>
+                    <td>Vender</td>
+                    <td>Rango amplio y repunte del VIX; ruptura por debajo de 1.1760</td>
+                    <td>&lt;1.1760</td>
+                    <td>1.1815</td>
+                    <td>1.1685</td>
+                    <td>1.5&nbsp;%</td>
+                    <td>≈50&nbsp;%</td>
+                </tr>
+                <tr>
+                    <td>EURUSD</td>
+                    <td>Esperar</td>
+                    <td>Evento de alto impacto inminente o spreads elevados</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>0&nbsp;%</td>
+                    <td>—</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Quantitative data panel -->
+    <section id="quant-data-panel" class="panel">
+        <h3>Panel&nbsp;de&nbsp;Datos&nbsp;Cuantitativos</h3>
+        <table class="quant-table">
+            <thead>
+                <tr>
+                    <th>Par/Índice</th>
+                    <th>Cambio&nbsp;%</th>
+                    <th>Rango&nbsp;del&nbsp;día</th>
+                    <th>Rango&nbsp;promedio</th>
+                    <th>Volatilidad&nbsp;actual</th>
+                    <th>Distancia&nbsp;S/R</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>EURUSD</td>
+                    <td>+0.3&nbsp;%</td>
+                    <td>115&nbsp;pips</td>
+                    <td>90&nbsp;pips</td>
+                    <td>Alta</td>
+                    <td>Cerca&nbsp;de&nbsp;resistencia</td>
+                </tr>
+                <tr>
+                    <td>USDJPY</td>
+                    <td>−0.17&nbsp;%</td>
+                    <td>80&nbsp;pips</td>
+                    <td>60&nbsp;pips</td>
+                    <td>Moderada</td>
+                    <td>En&nbsp;zona&nbsp;intermedia</td>
+                </tr>
+                <tr>
+                    <td>S&amp;P&nbsp;500</td>
+                    <td>+0.84&nbsp;%</td>
+                    <td>398&nbsp;puntos</td>
+                    <td>350&nbsp;puntos</td>
+                    <td>Baja</td>
+                    <td>A&nbsp;un&nbsp;1&nbsp;% del&nbsp;máximo</td>
+                </tr>
+                <tr>
+                    <td>Nasdaq&nbsp;100</td>
+                    <td>+1.71&nbsp;%</td>
+                    <td>650&nbsp;puntos</td>
+                    <td>600&nbsp;puntos</td>
+                    <td>Alta</td>
+                    <td>A&nbsp;un&nbsp;1&nbsp;% del&nbsp;máximo</td>
+                </tr>
+                <tr>
+                    <td>XAUUSD</td>
+                    <td>+0.8&nbsp;%</td>
+                    <td>45&nbsp;USD</td>
+                    <td>30&nbsp;USD</td>
+                    <td>Moderada</td>
+                    <td>Cerca&nbsp;de&nbsp;soporte</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Institutional patterns panel -->
+    <section id="patterns-panel" class="panel">
+        <h3>Panel&nbsp;de&nbsp;Patrones&nbsp;Institucionales</h3>
+        <ul class="patterns-list">
+            <li><strong>Break of Structure</strong>: Se produce cuando el precio rompe un nivel clave, indicando un posible cambio de tendencia.</li>
+            <li><strong>Liquidity Sweep</strong>: Barrido de liquidez que caza stops antes de girar el mercado.</li>
+            <li><strong>Fair Value Gap</strong>: Zona donde existe un vacío de liquidez entre dos velas; suele rellenarse antes de continuar.</li>
+            <li><strong>Order Block</strong>: Área de acumulación institucional que puede actuar como soporte/resistencia.</li>
+            <li><strong>Equal Highs/Lows</strong>: Múltiples máximos o mínimos en el mismo nivel indican liquidez pendiente.</li>
+        </ul>
+    </section>
+
+    <!-- Creator panel -->
+    <section id="creator-panel" class="panel">
+        <div class="creator-content">
+            <div class="creator-logo-wrapper">
+                <!-- Animación del logo: la letra V gira lentamente -->
+                <!-- Ajuste de ruta: la imagen del logotipo ahora está en la raíz -->
+                <img src="logo.png" alt="Logo VLAD" class="creator-logo">
+            </div>
+            <div class="creator-text">
+                <h3>Creador&nbsp;–&nbsp;VLAD</h3>
+                <p><strong>Analizar los mercados es mi hobby</strong> porque encuentro diversión en descifrar sus movimientos. Creo que las divisas y los índices son como rompecabezas que se resuelven con paciencia y curiosidad. Por eso decidí crear CONSILIUM: una herramienta para dar seguimiento a noticias y eventos que afectan a un puñado de pares de divisas y metales, explicándolos en un lenguaje sencillo que cualquier persona pueda entender.</p>
+                <p>Mi objetivo es compartir análisis y estrategias basados en datos y noticias reales, con un tono persuasivo y cercano, como si un amigo te contara lo que está pasando en el mercado. Espero que te inspires y que disfrutes el viaje tanto como yo.</p>
+                <p>Sígueme en Instagram: <a href="https://instagram.com/kidvladislaus" target="_blank">@kidvladislaus</a></p>
+            </div>
+            <div class="creator-decor">
+                <!-- Ajuste de ruta: la imagen decorativa ahora está en la raíz -->
+                <img src="creator_decor.jpeg" alt="Decorativo" class="creator-decor-img">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footnotes for citations -->
+    <footer>
+        <h4>Referencias</h4>
+        <div class="references">
+            <p><a href="#" target="_blank">Oanda – Guía para interpretar el apetito y la aversión al riesgo</a></p>
+            <p><a href="#" target="_blank">Reuters – Análisis técnico del EURUSD</a></p>
+            <p><a href="#" target="_blank">Reuters – Oro repunta tras mínimos de un mes</a></p>
+            <p><a href="#" target="_blank">Reuters – Caída del petróleo por expectativas de acuerdo</a></p>
+            <p><a href="#" target="_blank">Reuters – S&amp;P 500 y Nasdaq en máximos históricos</a></p>
+            <p><a href="#" target="_blank">Reuters – Patrón «cup and handle» en US10Y</a></p>
+            <p><a href="#" target="_blank">Trading Economics – Yen recupera terreno ante intervenciones</a></p>
+            <p><a href="#" target="_blank">Mitrade – Efecto de las Non‑Farm Payrolls en el USD y el oro</a></p>
+            <p><a href="#" target="_blank">Axiory – Qué es el IPC y cómo afecta al EUR</a></p>
+            <p><a href="#" target="_blank">Darden – Por qué las palabras de la Fed importan</a></p>
+        </div>
+        <p>Estas referencias respaldan el análisis. Algunos enlaces pueden requerir suscripciones o acceso específico.</p>
+    </footer>
+
+    <!-- Load the JavaScript file -->
+    <script src="js/script.js"></script>
+</body>
+</html>
